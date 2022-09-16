@@ -16,6 +16,23 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//customer, user, participant
+
+Route::view('/', 'welcome');
+Route::view('/home', 'home');
+
+// Route::get('/login/customer', '');
+// Route::get('/login/admin', '');
+// Route::get('/login/participant', '');
+
+// Route::get('/customer/{id}', '');
+// Route::get('/admin/{id}', '');
+// Route::get('/participant/{id}', '');
+
+
+// Route::post('/login/customer', '');
+// Route::post('/login/admin', '');
+// Route::post('/login/participant', '');
+
+
+
