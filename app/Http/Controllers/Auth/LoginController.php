@@ -42,4 +42,31 @@ class LoginController extends Controller
         // the above users cannot login simultaneously on the same machine.
     }
 
+    public function showParticipantLoginPage(){
+        return view('auth.participant_login', ['url' => 'participant']);
+    }
+
+    public function participantLogin(Request $request)
+    {
+        # code...
+    }
+
+    public function showAdminLoginPage(){
+        return view('auth.admin_login', ['url' => 'admin']);
+    }
+
+    public function adminLogin(Request $request)
+    {
+        # code...
+    }
+
+    public function showCustomerLoginPage(){
+        return view('auth.customer_login', ['url' => 'customer']);
+    }
+
+    public function customerLogin(Request $request)
+    {
+        # code...
+    }
+
 }
