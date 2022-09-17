@@ -8,4 +8,3 @@ Problem statement.
 ## Guide to collaboration
 
 In case you are looking to get your feet up and running on how to set up your own repo and collaborate, look at this article. [How to set up the project.](https://www.dataschool.io/how-to-contribute-on-github/)
-
