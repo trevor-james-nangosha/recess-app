@@ -26,9 +26,12 @@ Route::get('/login/participant', 'App\Http\Controllers\Auth\LoginController@show
 Route::get('/register/customer', 'App\Http\Controllers\Auth\RegisterController@showCustomerRegisterPage');
 Route::get('/register/admin', 'App\Http\Controllers\Auth\RegisterController@showAdminRegisterPage');
 
-// Route::get('/customer/{id}', '');
-// Route::get('/admin/{id}', '');
-// Route::get('/participant/{id}', '');
+Route::get('/customers', 'App\Http\Controllers\ProfileController@showCustomers');
+Route::get('/customers/{id}', 'App\Http\Controllers\ProfileController@showCustomerProfile');
+Route::get('/admins', 'App\Http\Controllers\ProfileController@showAdmins');
+Route::get('/admins/{id}', 'App\Http\Controllers\ProfileController@showAdminProfile');
+Route::get('/participants', 'App\Http\Controllers\ProfileController@showParticipants');
+Route::get('/participants/{id}', 'App\Http\Controllers\ProfileController@showParticipantProfile');
 
 // route();
 Route::post('/login/customer', 'App\Http\Controllers\Auth\LoginController@customerLogin')->name('loginCustomer');
