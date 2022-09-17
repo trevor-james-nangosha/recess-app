@@ -54,7 +54,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -67,10 +67,48 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        // return User::create([
+        //     'name' => $data['name'],
+        //     'email' => $data['email'],
+        //     'password' => Hash::make($data['password']),
+        // ]);
+    }
+
+    public function showAdminRegisterPage(){
+        return view('auth.admin_register');
+    }
+
+    public function showCustomerRegisterPage(){
+        return view('auth.customer_register');
+    }
+
+    protected function createAdmin(Request $request){
+        $this->validator($request->all())->validate();
         return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'type' => 'ADMIN',
+            'password' => Hash::make($request['password']),
+        ]);
+    }
+
+    protected function createParticipant(Request $request){
+        $this->validator($request->all())->validate();
+        return User::create([
+            'name' => $request['name'],
+            'dateOfBirth' => $request['dateOfBirth'],
+            'type' => 'PARTICIPANT',
+            'password' => Hash::make($request['password']),
+        ]);
+    }
+
+    protected function createCustomer(Request $request){
+        $this->validator($request->all())->validate();
+        return User::create([
+            'name' => $request['name'],
+            'shippingAddress' => $request['shippingAddress'],
+            'type' => 'CUSTOMER',
+            'password' => Hash::make($request['password']),
         ]);
     }
 
