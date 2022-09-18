@@ -32,10 +32,13 @@ Route::get('/admins', 'App\Http\Controllers\ProfileController@showAdmins');
 Route::get('/admins/{id}', 'App\Http\Controllers\ProfileController@showAdminProfile');
 Route::get('/participants', 'App\Http\Controllers\ProfileController@showParticipants');
 Route::get('/participants/{id}', 'App\Http\Controllers\ProfileController@showParticipantProfile');
+Route::get('/about/participants', 'App\Http\Controllers\ParticipantsController@browseAllParticipants');
+Route::get('/about/participants/{id}', 'App\Http\Controllers\ParticipantsController@browseParticipant');
+
 
 Route::get('/shop', 'App\Http\Controllers\ShoppingController@showOrderPage');
-Route::get('/products', 'App\Http\Controllers\ProductsController@showProducts');
-
+Route::get('/products', 'App\Http\Controllers\ProductsController@showAllProducts');
+Route::get('/products/{id}', 'App\Http\Controllers\ProductsController@showProduct');
 
 Route::post('/login/customer', 'App\Http\Controllers\Auth\LoginController@customerLogin')->name('loginCustomer');
 Route::post('/login/admin', 'App\Http\Controllers\Auth\LoginController@adminLogin')->name('loginAdmin');
@@ -44,6 +47,9 @@ Route::post('/login/participant', 'App\Http\Controllers\Auth\LoginController@par
 Route::post('/register/admin', 'App\Http\Controllers\Auth\RegisterController@createAdmin')->name('registerAdmin');
 Route::post('/register/customer', 'App\Http\Controllers\Auth\RegisterController@createCustomer')->name('registerCustomer');
 Route::post('/register/participant', 'App\Http\Controllers\Auth\RegisterController@createParticipant')->name('registerParticipant');
+
+Route::post('/products', 'App\Http\Controllers\ProductsController@addNewProduct');
+Route::post('/checkout', 'App\Http\Controllers\CheckoutController@processCheckout');
 
 // TODO;
 // when i try making post requests from my terminal using curl, all i get is the page expired page.
