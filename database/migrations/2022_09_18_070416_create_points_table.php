@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('points', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('userID')->unsigned(); //change userID to participantID for context
             $table->integer('numberOfPoints');
-            $table->bigInteger('userID')->unsigned();
             $table->timestamps();
 
             $table->foreign('userID')->references('id')->on('users');

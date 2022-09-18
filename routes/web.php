@@ -36,21 +36,19 @@ Route::get('/participants/{id}', 'App\Http\Controllers\ProfileController@showPar
 Route::get('/shop', 'App\Http\Controllers\ShoppingController@showOrderPage');
 Route::get('/products', 'App\Http\Controllers\ProductsController@showProducts');
 
-// route();
+
 Route::post('/login/customer', 'App\Http\Controllers\Auth\LoginController@customerLogin')->name('loginCustomer');
 Route::post('/login/admin', 'App\Http\Controllers\Auth\LoginController@adminLogin')->name('loginAdmin');
 Route::post('/login/participant', 'App\Http\Controllers\Auth\LoginController@participantLogin')->name('loginParticipant');
-
-// TODO;
-// when i try making post requests from my terminal using curl, all i get is the page expired page.
-// why is this happening???? it is something to do with csrf tokens.
-// setting csrf tokens using curl.
-
 
 Route::post('/register/admin', 'App\Http\Controllers\Auth\RegisterController@createAdmin')->name('registerAdmin');
 Route::post('/register/customer', 'App\Http\Controllers\Auth\RegisterController@createCustomer')->name('registerCustomer');
 Route::post('/register/participant', 'App\Http\Controllers\Auth\RegisterController@createParticipant')->name('registerParticipant');
 
+// TODO;
+// when i try making post requests from my terminal using curl, all i get is the page expired page.
+// why is this happening???? it is something to do with csrf tokens.
+// setting csrf tokens using curl.
 
 
 
