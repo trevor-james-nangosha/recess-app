@@ -30,3 +30,7 @@ class RedirectIfAuthenticated
         return $next($request);
     }
 }
+
+// TODO;
+// have custom redirects when authenticated depending on the user.
+// when authenticated each person should go to their own profile page. 
