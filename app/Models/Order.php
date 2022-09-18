@@ -15,5 +15,5 @@ class Order extends Model
         'productID',
         'quantityOrdered',
         'totalAmount'
-    ]
+    ];
 }
