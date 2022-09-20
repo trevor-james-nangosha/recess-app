@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function showCustomers(Request $request){
         $customers= User::where('type', 'CUSTOMER')->get();
         return $customers;
