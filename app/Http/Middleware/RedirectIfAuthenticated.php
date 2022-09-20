@@ -23,7 +23,12 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                $user = $request->user();
+
+                $userType = $user->type;
+                $base_url = strtolower($userType."s");
+                $id = $user->id;
+                return redirect($base_url.'/'.$id);
             }
         }
 
@@ -33,4 +38,4 @@ class RedirectIfAuthenticated
 
 // TODO;
 // have custom redirects when authenticated depending on the user.
-// when authenticated each person should go to their own profile page. 
+// when authenticated each person should go to their own profile page.
