@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\Translation\Provider\NullProvider;
+use App\Models\Cart;
+use App\Models\HasBought;
+use App\Models\Order;
+use App\Models\Point;
 
 class CheckoutController extends Controller
 {
     // assume this is the cart that has been
-    // sent from the client at the time of checkout
+    // sent from the client at the time of checkout and it looks something like this.
     protected $cart = [
         [
-            'customerID' => 7
+            'customerID' => 7, // remember we are supposed to get the user who is currently logged into the session.
+            'tag' => 867857857684876565
         ],
 
         [
@@ -32,108 +36,120 @@ class CheckoutController extends Controller
         ]
     ];
 
-    protected function processCheckout($cart){
-        $this->populateHasBoughtsTable($cart);
-        $this->awardUserPoints($cart);
-        $this->updateProductStock($cart);
-        $this->recordOrders($cart);
+    protected function processCheckout(Request $request){
+        $cartData = $this->storeCart($request);
+        $cart = json_decode($cartData->cartData, true)[0];
+        $products = json_decode($cartData->cartData, true);
+
+        $this->populateHasBoughtsTable($cart, $products);
+        $this->awardUserPoints($cart, $products);
+        $this->updateProductStock($products);
+        $this->recordOrders($cart, $products);
     }
 
-    protected function populateHasBoughtsTable($cart){
-        $customerId = $cart[0]['customerID'];
-        foreach (array_slice($cart, 1) as $product) {
-            $purchasePoints = 0;
-            $productId = $product['productID'];
+    protected function populateHasBoughtsTable($cart, $products){
+        $customerId = $cart['userID'];
+        $tag = $cart['tag'];
 
-            // TODO;
-            // is an empty result null in php?????
+        foreach (array_slice($products, 1) as $product) {
+            $productId = $product['id'];
 
             $match = DB::table('has_boughts')->where('customerID', $customerId)->where('productID', $productId)->get();
-            if($match == null){ //if we dont get results.(you are a first time buyer)
-                DB::table('has_boughts')->insert([
+            if($match->count() == 0){ //if we dont get results.(you are a first time buyer)
+                HasBought::create([
                     'customerID' => $customerId,
                     'productID' => $productId,
                     'numberOfTimes' => 1,
                     'returnPurchase' => false
                 ]);
                 continue; // go on to the next product
+            }elseif($match->count() > 0){
+                $numberOfTimes = $match->value('numberOfTimes');
+
+                // to be used for updating
+                $returnPurchase = true;
+                $numberOfTimes += 1;
+
+                DB::table('has_boughts')->where('customerID', $customerId)->where('productID', $productId)->update([
+                    'numberOfTimes' => $numberOfTimes,
+                    'returnPurchase' => $returnPurchase,
+                ]);
             }
-
-            $numberOfTimes = $match->numberOfTimes;
-
-             // to be used for updating
-            $returnPurchase = true;
-            $numberOfTimes += 1;
-
-            DB::table('has_boughts')->where('customerID', $customerId)->where('productID', $productId)->update([
-                'numberOfTimes' => $numberOfTimes,
-                'returnPurchase' => $returnPurchase,
-            ]);
         }
     }
 
-    protected function awardUserPoints($cart){
-        $customerId = $cart[0]['customerID'];
-        foreach (array_slice($cart, 1) as $product) {
+    protected function awardUserPoints($cart, $products){
+        $customerId = $cart['userID'];
+        foreach (array_slice($products, 1) as $product) {
             // get participant associated with the product.
-            $productId = $product['productID'];
+            $productId = $product['id'];
             $participantId = DB::table('products')->where('id', $productId)->value('userID');
+
             $quantity = $product['quantity'];
 
             // we go to the has_boughts table and see the number of times this
-            // specific customer has bought this product
+            // specific customer has bought this product(are they a return customer????)
             $match = DB::table('has_boughts')->where('customerID', $customerId)->where('productID', $productId)->get();
-            $currentPoints = DB::table('points')->where('userID', $participantId)->value('numberOfPoints');
+            $currentPoints = DB::table('points')->where('participantID', $participantId)->value('numberOfPoints');
 
-            if($match->returnPurchase == false){
-                // update user purchase points by one
-                DB::table('points')->where('userID', $participantId)->updateOrInsert([
-                    'numberOfPoints' => $currentPoints + 1
-                ]);
-            }elseif($match->returnPurchase == true && $quantity == 1){
-                // ...by two
-                DB::table('points')->where('userID', $participantId)->updateOrInsert([
-                    'numberOfPoints' => $currentPoints + 2
-                ]);
-            }elseif($match->returnPurchase == true && $quantity > 1){
-                // ..by four
-                DB::table('points')->where('userID', $participantId)->updateOrInsert([
-                    'numberOfPoints' => $currentPoints + 3
-                ]);
+            if($match->count() > 0){
+                if($match->value('returnPurchase') == false){
+                    // update user purchase points by one
+                    Point::create([
+                        'participantID' => $participantId,
+                        'numberOfPoints' => $currentPoints + 1
+                    ]);
+                }
+                elseif($match->value('returnPurchase') == true && $quantity == 1){
+                    // ...by two
+                    DB::table('points')->where('participantID', $participantId)->increment('numberOfPoints', 2);
+                }elseif($match->value('returnPurchase') == true && $quantity > 1){
+                    // ..by four
+                    DB::table('points')->where('participantID', $participantId)->increment('numberOfPoints', 4);
+                }
             }
-
         }
-
     }
 
-    protected function updateProductStock($cart){
-        foreach (array_slice($cart, 1) as $product) {
-            $productId = $product['productID'];
+
+    protected function updateProductStock($products){
+        foreach (array_slice($products, 1) as $product) {
+            $productId = $product['id'];
             $quantity = $product['quantity'];
 
             DB::table('products')->where('id', $productId)->decrement('quantityAvailable', $quantity);
         }
     }
 
-    protected function recordOrders($cart){
-        $customerId = $cart[0]['customerID'];
-        foreach (array_slice($cart, 1) as $product) {
-            $productId = $product['productID'];
+    protected function recordOrders($cart, $products){
+        $customerId = $cart['userID'];
+        foreach (array_slice($products, 1) as $product) {
+            $productId = $product['id'];
             $quantityOrdered = $product['quantity'];
             $unitPrice = DB::table('products')->where('id', $productId)->value('ratePerItem');
 
-            DB::table('orders')->insert([
-                'date' =>  Date ('Y/m/d'), // fix this
+            Order::create([
                 'userID' => $customerId,
                 'productID' => $productId,
                 'quantityOrdered' => $quantityOrdered,
                 'totalAmount' => $quantityOrdered*$unitPrice,
             ]);
-
         }
+    }
+
+    protected function storeCart(Request $request){
+        return Cart::create([
+            'cartData' => json_encode($request->input()),
+            'customerID' => $request->input()[0]['userID']
+        ]);
+    }
+
+    protected function finalisePurchase(){
+        // code....
     }
 
 }
 
 // TODO;
-// dates in php. how to put them in the yyyy-mm-dd format
+// fix some issue with the "points awarding" logic.
+// and the storeCart() method.
