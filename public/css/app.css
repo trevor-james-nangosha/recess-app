@@ -1,0 +1,15 @@
+form > div{
+    display: block;
+    padding: 20px;
+}
+
+
+button{
+    display: inline;
+}
+
+label .col-md-4{
+    size: 10px;
+    font-weight: bold;
+}
+
