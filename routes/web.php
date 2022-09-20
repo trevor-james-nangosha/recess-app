@@ -19,13 +19,6 @@ Auth::routes();
 Route::view('/', 'welcome');
 Route::view('/home', 'home');
 
-Route::get('/login/customer', 'App\Http\Controllers\Auth\LoginController@showCustomerLoginPage');
-Route::get('/login/admin', 'App\Http\Controllers\Auth\LoginController@showAdminLoginPage');
-Route::get('/login/participant', 'App\Http\Controllers\Auth\LoginController@showParticipantLoginPage');
-
-Route::get('/register/customer', 'App\Http\Controllers\Auth\RegisterController@showCustomerRegisterPage');
-Route::get('/register/admin', 'App\Http\Controllers\Auth\RegisterController@showAdminRegisterPage');
-
 Route::get('/customers', 'App\Http\Controllers\ProfileController@showCustomers');
 Route::get('/customers/{id}', 'App\Http\Controllers\ProfileController@showCustomerProfile');
 Route::get('/admins', 'App\Http\Controllers\ProfileController@showAdmins');
@@ -35,21 +28,14 @@ Route::get('/participants/{id}', 'App\Http\Controllers\ProfileController@showPar
 Route::get('/about/participants', 'App\Http\Controllers\ParticipantsController@browseAllParticipants');
 Route::get('/about/participants/{id}', 'App\Http\Controllers\ParticipantsController@browseParticipant');
 
-
 Route::get('/shop', 'App\Http\Controllers\ShoppingController@showOrderPage');
 Route::get('/products', 'App\Http\Controllers\ProductsController@showAllProducts');
 Route::get('/products/{id}', 'App\Http\Controllers\ProductsController@showProduct');
 
-Route::post('/login/customer', 'App\Http\Controllers\Auth\LoginController@customerLogin')->name('loginCustomer');
-Route::post('/login/admin', 'App\Http\Controllers\Auth\LoginController@adminLogin')->name('loginAdmin');
-Route::post('/login/participant', 'App\Http\Controllers\Auth\LoginController@participantLogin')->name('loginParticipant');
-
-Route::post('/register/admin', 'App\Http\Controllers\Auth\RegisterController@createAdmin')->name('registerAdmin');
-Route::post('/register/customer', 'App\Http\Controllers\Auth\RegisterController@createCustomer')->name('registerCustomer');
-Route::post('/register/participant', 'App\Http\Controllers\Auth\RegisterController@createParticipant')->name('registerParticipant');
+Route::get('/checkout', 'App\Http\Controllers\CheckoutController@finalisePurchase')->name('checkoutget');
 
 Route::post('/products', 'App\Http\Controllers\ProductsController@addNewProduct');
-Route::post('/checkout', 'App\Http\Controllers\CheckoutController@processCheckout');
+Route::post('/checkout', 'App\Http\Controllers\CheckoutController@processCheckout')->name('checkoutpost');
 
 // TODO;
 // when i try making post requests from my terminal using curl, all i get is the page expired page.
