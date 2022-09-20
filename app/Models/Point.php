@@ -11,6 +11,6 @@ class Point extends Model
 
     protected $fillable = [
         'numberOfPoints',
-        'userID'
-    ]
+        'participantID'
+    ];
 }

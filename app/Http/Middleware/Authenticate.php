@@ -16,6 +16,7 @@ class Authenticate extends Middleware
     {
         if (! $request->expectsJson()) {
             return route('login');
+            //wanna redirect unauthenticated users to the home page.
         }
     }
 }
