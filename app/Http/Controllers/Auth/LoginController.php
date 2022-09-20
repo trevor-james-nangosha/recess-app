@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as RoutingController;
@@ -41,31 +42,24 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function showParticipantLoginPage(){
-        return view('auth.participant_login', ['url' => 'participant']);
-    }
-
-    public function participantLogin(Request $request)
+    protected function authenticated(Request $request, $user)
     {
-        # code...
-    }
-
-    public function showAdminLoginPage(){
-        return view('auth.admin_login', ['url' => 'admin']);
-    }
-
-    public function adminLogin(Request $request)
-    {
-        # code...
-    }
-
-    public function showCustomerLoginPage(){
-        return view('auth.customer_login', ['url' => 'customer']);
-    }
-
-    public function customerLogin(Request $request)
-    {
+        $userType = $user->type;
+        $base_url = strtolower($userType."s");
+        $id = $user->id;
+        return redirect($base_url.'/'.$id);
 
     }
+
+
+
 
 }
+
+// TODO;
+// after some careful thinking i realise that there is no need to have three different pages for login
+// i could just set the email field to unique
+// that way there wont be users with the same email address, hence it is a way of differentiating
+// between customers, admins and participants.
+
+// and there is no need for three register pages

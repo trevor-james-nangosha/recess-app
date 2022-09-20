@@ -56,6 +56,7 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'type' => ['required'],
         ]);
     }
 
@@ -65,51 +66,37 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
-    // protected function create(array $data)
-    // {
-    //     return User::create([
-    //         'name' => $data['name'],
-    //         'email' => $data['email'],
-    //         'password' => Hash::make($data['password']),
-    //     ]);
-    // }
-
-    public function showAdminRegisterPage(){
-        return view('auth.admin_register');
-    }
-
-    public function showCustomerRegisterPage(){
-        return view('auth.customer_register');
-    }
-
-    protected function createAdmin(Request $request){
-        $this->validator($request->all())->validate();
-        return User::create([
-            'name' => $request['name'],
-            'email' => $request['email'],
-            'type' => 'ADMIN',
-            'password' => Hash::make($request['password']),
-        ]);
-    }
-
-    protected function createParticipant(Request $request){
-        $this->validator($request->all())->validate();
-        return User::create([
-            'name' => $request['name'],
-            'dateOfBirth' => $request['dateOfBirth'],
-            'type' => 'PARTICIPANT',
-            'password' => Hash::make($request['password']),
-        ]);
-    }
-
-    protected function createCustomer(Request $request){
-        $this->validator($request->all())->validate();
-        return User::create([
-            'name' => $request['name'],
-            'shippingAddress' => $request['shippingAddress'],
-            'type' => 'CUSTOMER',
-            'password' => Hash::make($request['password']),
-        ]);
+    protected function create(array $data)
+    {
+        if(array_key_exists('dateOfBirth', $data)){
+            return User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'type' => $data['type'],
+                'dateOfBirth' => $data['dateOfBirth'],
+                'password' => Hash::make($data['password']),
+            ]);
+        }else if(array_key_exists('shippingAddress', $data)){
+            return User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'type' => $data['type'],
+                'shippingAddress' => $data['shippingAddress'],
+                'password' => Hash::make($data['password']),
+            ]);
+        }else{
+            return User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'type' => $data['type'],
+                'password' => Hash::make($data['password']),
+            ]);
+        }
     }
 
 }
+
+// TODO;
+// add some fields in the  web pages forms to cater for this.
+// you can tell the users the fields they need to fill for
+// their respective user roles
