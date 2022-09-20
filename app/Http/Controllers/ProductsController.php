@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Laravel\Ui\Presets\React;
-
+use Illuminate\Support\Facades\DB;
 class ProductsController extends Controller
 {
     public function showAllProducts(){
-        // code...
+        return DB::table('products')->get();
     }
 
     public function showProduct(Request $request){
