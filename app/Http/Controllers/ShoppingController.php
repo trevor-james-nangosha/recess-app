@@ -7,6 +7,6 @@ use Illuminate\Http\Request;
 class ShoppingController extends Controller
 {
     public function showOrderPage(){
-        // code...
+        return view('shop');
     }
 }
