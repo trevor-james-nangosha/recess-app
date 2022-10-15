@@ -23,12 +23,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                $user = $request->user();
-
-                $userType = $user->type;
-                $base_url = strtolower($userType."s");
-                $id = $user->id;
-                return redirect($base_url.'/'.$id);
+                if($request->user()->type == 'ADMIN'){
+                    return redirect('/admin/dashboard');
+                }elseif ($request->user()->type == 'CUSTOMER') {
+                    return redirect('/customer/dashboard');
+                }elseif ($request->user()->type == 'PARTICIPANT') {
+                    return redirect('participants/dashboard');
+                }else{
+                    return redirect(RouteServiceProvider::PROFILE);
+                }
             }
         }
 

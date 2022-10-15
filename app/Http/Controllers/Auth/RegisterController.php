@@ -7,9 +7,8 @@ use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
@@ -31,18 +30,17 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    // protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = RouteServiceProvider::PROFILE;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware('guest');
     }
-
 
     /**
      * Get a validator for an incoming registration request.
@@ -54,9 +52,8 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'type' => ['required'],
         ]);
     }
 
@@ -72,7 +69,7 @@ class RegisterController extends Controller
             return User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'type' => $data['type'],
+                'type' => 'PARTICIPANT',
                 'dateOfBirth' => $data['dateOfBirth'],
                 'password' => Hash::make($data['password']),
             ]);
@@ -80,7 +77,7 @@ class RegisterController extends Controller
             return User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'type' => $data['type'],
+                'type' => 'CUSTOMER',
                 'shippingAddress' => $data['shippingAddress'],
                 'password' => Hash::make($data['password']),
             ]);
@@ -88,15 +85,26 @@ class RegisterController extends Controller
             return User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'type' => $data['type'],
+                'type' => 'ADMIN',
                 'password' => Hash::make($data['password']),
             ]);
         }
     }
 
+    protected function authenticated(Request $request, $user)
+    {
+
+    }
+
+    protected function showAdminRegistrationForm(){
+        return view('auth.admin_register');
+    }
+
+    protected function showCustomerRegistrationForm(){
+        return view('auth.customer_register');
+    }
+
 }
 
 // TODO;
-// add some fields in the  web pages forms to cater for this.
-// you can tell the users the fields they need to fill for
-// their respective user roles
+// fix the problem of redirecting users to dashboards immediately after registration.

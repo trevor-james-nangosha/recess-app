@@ -13,7 +13,9 @@ class Product extends Model
         'name',
         'kind',
         'description',
+        'totalQuantityPosted',
+        'totalQuantitySold',
         'quantityAvailable',
-        'ratePerItem'
-    ]
+        'ratePerItem',
+    ];
 }

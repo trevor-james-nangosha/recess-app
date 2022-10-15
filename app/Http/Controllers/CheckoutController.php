@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use App\Models\Cart;
 use App\Models\HasBought;
@@ -12,29 +11,6 @@ use App\Models\Point;
 
 class CheckoutController extends Controller
 {
-    // assume this is the cart that has been
-    // sent from the client at the time of checkout and it looks something like this.
-    protected $cart = [
-        [
-            'customerID' => 7, // remember we are supposed to get the user who is currently logged into the session.
-            'tag' => 867857857684876565
-        ],
-
-        [
-            'productID' =>  3,
-            'quantity' => 12
-        ],
-
-        [
-            'productID' =>  4,
-            'quantity' => 31
-        ],
-
-        [
-            'productID' =>  5,
-            'quantity' => 16
-        ]
-    ];
 
     protected function processCheckout(Request $request){
         $cartData = $this->storeCart($request);
@@ -49,7 +25,6 @@ class CheckoutController extends Controller
 
     protected function populateHasBoughtsTable($cart, $products){
         $customerId = $cart['userID'];
-        $tag = $cart['tag'];
 
         foreach (array_slice($products, 1) as $product) {
             $productId = $product['id'];
@@ -140,7 +115,7 @@ class CheckoutController extends Controller
     protected function storeCart(Request $request){
         return Cart::create([
             'cartData' => json_encode($request->input()),
-            'customerID' => $request->input()[0]['userID']
+            'customerID' => $request->user()->id
         ]);
     }
 
@@ -153,3 +128,7 @@ class CheckoutController extends Controller
 // TODO;
 // fix some issue with the "points awarding" logic.
 // and the storeCart() method.
+
+
+// i have added the totalQuantityPosted and totalQuantitySold fields to my database
+// add logic in this controller to account for those changes.

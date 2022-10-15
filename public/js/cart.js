@@ -1,46 +1,58 @@
-import axios from 'axios';
-import { toNumber } from 'lodash';
 
-const GET_PRODUCTS_URL = '/products'
 
-const fetchData = async (url) => {
-    let response = await axios.get(url);
-    return response
+let shoppingForm = document.querySelector('.submit-form-checkout')
+let checkoutButton = document.querySelector('.checkout-btn')
+let addToCartButtons = document.getElementsByClassName('cart-btn')
+let allQuantityInputFields = document.getElementsByClassName('input-quantity')
+let addCartModal = document.querySelector('.click-addcart-modal')
+let checkoutModal = document.querySelector('.click-checkout-modal')
+
+let cartMessage = document.querySelector('.click-addcart-modal-content')
+let checkoutMessage = document.querySelector('.click-checkout-modal-content')
+
+let cartCounter = 0
+let totalAmount = 0
+
+let toggleCartModal = () => {
+    addCartModal.classList.toggle('show-modal')
 }
 
-let form = document.getElementsByTagName('form')[0]
-let checkoutButton = document.querySelector('.btn-primary')
-let addToCartButtons = document.getElementsByClassName('btn-cart')
+let toggleCheckoutModal = () => {
+    checkoutModal.classList.toggle('show-checkout-modal')
+}
+
+
 let cart = [
     {
-        userID: 6,// for now let us assume 6 but it should be the id of the logged in customer.
-        tag: Date.now() //this field so that we can sort carts by date
+        userID: window.User.userID,
+        tag: Date.now()
     }
 ]
 
 // event listeners
-form.addEventListener('submit', (event) => {
+shoppingForm.addEventListener('submit', (event) => {
     event.preventDefault();
 })
 
 
-//we get the products from the backend
-fetchData(GET_PRODUCTS_URL)
-    .then((response) => {
-        let products = response.data
+// //we get the products from the backend
+fetch('/products')
+    .then(response => response.json())
+    .then(responseData => {
+        let products = responseData
         Array.from(addToCartButtons).forEach((element) => {
             element.addEventListener('click', (event)=>{
                 event.preventDefault()
 
                 // when a user clicks add to cart, we add an object with the product name and quantity to the cart
-                let productName = element.parentElement.parentElement.firstElementChild.innerHTML
-                let quantity = toNumber(element.parentElement.children[1].value)
+                let productName = element.parentElement.parentElement.firstElementChild.innerText
+                let quantity = element.parentElement.children[0].value
 
                 //we get the id associated with the product name. check in the products array
                 let productID = products.filter(product => product.name === productName)[0].id
 
-                // we need to make sure that there are no duplicate products in the cart
-                let match = cart.find(element => element.id === productID)
+                // we need to make sure that there are no duplicate products/entries in the cart
+                let match = cart.find(element => element.productName === productName)
                 if(!match && quantity > 0){
                     cart.push(
                         {
@@ -49,34 +61,75 @@ fetchData(GET_PRODUCTS_URL)
                             quantity: quantity,
                         }
                     )
+                    cartCounter += 1
+                    cartMessage.innerText = `You have added ${cartCounter} item(s) to the cart.`
+                    toggleCartModal()
+                    setTimeout(toggleCartModal, 1500)
+
                 }else if(match && quantity > 0){
                     match.quantity = quantity;
                 }
-
-
-                // ((cart))
             })
         })
         checkoutButton.addEventListener('click', (event) => {
+            console.log(cart)
             // put some logic to check if cart is not empty
-            if(cart.length > 0){
+            if(cart.length > 1){
+                Array.from(allQuantityInputFields).forEach(element => {
+                    element.value = ''
+                });
                 let shoppingCart = (JSON.stringify(cart));
-                axios.post('/checkout', shoppingCart, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => console.log(response.data))// if response successful , purchase OK.
+
+                cart.slice(1).forEach(entry => {
+                    let ratePerItem = products.filter(product => product.name === entry.productName)[0].ratePerItem
+                    let amount = entry.quantity * ratePerItem
+                    totalAmount += amount
+                });
+
+                checkoutMessage.innerHTML =
+                `<div class=checkout-total>
+                        <p id="c-1">Purchase details</p>
+                        <p id="c-2">Total amount: ${totalAmount}</p>
+                        <p id="c-3">Do you wish to finalise the purchase???</p>
+                        <button type="submit" class="confirm-purchase">CONFIRM</button>
+                </div>`
+
+                toggleCheckoutModal()
+                let confirmPurchase = document.querySelector('.confirm-purchase')
+                confirmPurchase.addEventListener('click', () => {
+                    fetch('/checkout', {
+                        'method': 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        'body': shoppingCart
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log(data))
                     .catch(error => console.log(error))
+                    toggleCheckoutModal()
+                    cartMessage.innerText = `Thank you for shopping with us!!!!!` // Your goods will be delivered to ${window.User.address}`
+                    toggleCartModal()
+                    setTimeout(toggleCartModal, 1500)
+
+                    //empty the cart after this purchase has been completed.
+                    for (let index = 0; index < cart.length; index++) {
+                        cart.pop()
+                    }
+                    cartCounter = 0
+                    cart = [
+                        {
+                            userID: window.User.userID,
+                            tag: Date.now()
+                        }
+                    ]
+
+                })
             }
         })
 
     })
 
-
-
-
 //TODO;
-// solve my allocating axios response to variable problem.
-// should i use fetch instead
+// fix the cart destoying logic
 

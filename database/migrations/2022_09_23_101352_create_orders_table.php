@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,17 +14,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->bigInteger('userID')->unsigned();
-            $table->string('kind');
-            $table->string('description');
-            $table->integer('quantityAvailable');
-            $table->float('ratePerItem');
+            $table->date('date')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->bigInteger('userID')->unsigned()->nullable();
+            $table->bigInteger('productID')->unsigned()->nullable();
+            $table->integer('quantityOrdered');
+            $table->bigInteger('totalAmount');
             $table->timestamps();
 
             $table->foreign('userID')->references('id')->on('users');
+            $table->foreign('productID')->references('id')->on('products');
         });
     }
 
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('orders');
     }
 };

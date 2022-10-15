@@ -15,8 +15,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+       $schedule->command('auto:insert')->everyMinute();
+       $schedule->command('Auto:InsertProduct')->everyMinute();
     }
+
 
     /**
      * Register the commands for the application.
